@@ -1,0 +1,58 @@
+# cloudbuild.yaml — Build, push, and deploy to Cloud Run on every push to main
+#
+# Setup:
+#   1. Enable Cloud Build API in your GCP project
+#   2. Connect your GitHub repo in the Cloud Build "Repositories" page
+#   3. Create a trigger that runs this file on push to main
+
+steps:
+  # ──────────────────────────────────────
+  # 1. Build the Docker image
+  # ──────────────────────────────────────
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "--tag"
+      - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+      - "."
+
+  # ──────────────────────────────────────
+  # 2. Push the image to Artifact Registry
+  # ──────────────────────────────────────
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+
+  # ──────────────────────────────────────
+  # 3. Deploy to Cloud Run
+  # ──────────────────────────────────────
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "portfolio"
+      - "--image"
+      - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+      - "--region"
+      - "us-central1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--memory"
+      - "256Mi"
+      - "--cpu"
+      - "1"
+      - "--min-instances"
+      - "0"
+      - "--max-instances"
+      - "3"
+      - "--set-env-vars"
+      - "NODE_ENV=production"
+
+images:
+  - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
