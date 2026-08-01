@@ -3,6 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Build-time args (set via Cloud Build substitution or --build-arg)
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
 # Install dependencies first for layer caching
 COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
 RUN if [ -f yarn.lock ]; then yarn --frozen-lockfile; \

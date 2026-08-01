@@ -1,16 +1,18 @@
 # vamsithokala.in — Zero-Cost Portfolio on GCP
 
-A dynamic Next.js portfolio site hosted on **Google Cloud Run**, designed to cost **$0 until real users arrive**. Includes infrastructure-as-code (Terraform), a CI/CD pipeline (Cloud Build), and a simple "Hello, World" dynamic page you can extend into a full portfolio.
+A dynamic Next.js portfolio site hosted on **Google Cloud Run**, designed to cost **$0 until real users arrive**. Includes infrastructure-as-code (Terraform), a CI/CD pipeline (Cloud Build for deploys, GitHub Actions for PR checks), and a simple "Hello, World" dynamic page you can extend into a full portfolio.
 
 ---
 
 ## Architecture
 
 ```
-GitHub push → Cloud Build → Docker image → Artifact Registry → Cloud Run
-                                                                    ↓
-                                                             vamsithokala.in
-                                                           (Cloud Domains + SSL)
+Pull Request ──→ GitHub Actions (build check)
+                      │
+GitHub push (main) ──→ Cloud Build → Docker image → Artifact Registry → Cloud Run
+                                                                         ↓
+                                                                  vamsithokala.in
+                                                                (Cloud Domains + SSL)
 ```
 
 | Layer | Technology | Why |
@@ -19,8 +21,17 @@ GitHub push → Cloud Build → Docker image → Artifact Registry → Cloud Run
 | Compute | Cloud Run (serverless) | Scales to zero — free when idle |
 | Image registry | Artifact Registry | Stores Docker images for Cloud Run |
 | CI/CD | Cloud Build | Auto-deploys on every `git push` to main |
+| PR Checks | GitHub Actions | Build + type-check on every pull request |
 | Domain | Cloud Domains | Register `vamsithokala.in` |
 | IaC | Terraform | Declarative GCP resource provisioning |
+
+---
+
+## Security Principles
+
+- **No service account JSON keys** — uses Application Default Credentials (ADC) everywhere. Run `gcloud auth application-default login` once.
+- **No hardcoded values** — everything is parameterized via Terraform variables, Cloud Build substitutions, and environment variables.
+- **No manual billing steps** — automate linking with `scripts/setup-billing.sh` or via Terraform directly.
 
 ---
 
@@ -40,14 +51,22 @@ GitHub push → Cloud Build → Docker image → Artifact Registry → Cloud Run
 
 ### Prerequisites
 
-- A Google Cloud account with billing enabled
+- A Google Cloud account
 - `gcloud` CLI installed: `brew install google-cloud-sdk` (macOS) or [gcloud install guide](https://cloud.google.com/sdk/docs/install)
 - Terraform installed: `brew install terraform` (macOS) or [terraform install guide](https://developer.hashicorp.com/terraform/install)
 - A GitHub account
 
----
+### 1. Authenticate (ADC — no JSON keys)
 
-### 1. Create a GCP Project
+```bash
+# One-time setup. Uses your Google account, no key file needed.
+gcloud auth login
+gcloud auth application-default login
+```
+
+### 2. Create a GCP Project & Link Billing
+
+**Option A — Script (recommended):**
 
 ```bash
 # Create the project
@@ -56,12 +75,15 @@ gcloud projects create YOUR_PROJECT_ID --name="Vamsi Portfolio"
 # Set it as active
 gcloud config set project YOUR_PROJECT_ID
 
-# Enable billing (required)
-# → Go to: https://console.cloud.google.com/billing
-#   Link your project to a billing account
+# Link billing — automated, no console needed
+./scripts/setup-billing.sh YOUR_PROJECT_ID
 ```
 
-### 2. Register the Domain
+**Option B — Terraform (fully automated):**
+
+Set `create_project = true` and `billing_account = "XXXXXX-XXXXXX-XXXXXX"` in your `terraform.tfvars` (see step 4). Terraform will create the project and link billing in one `apply`.
+
+### 3. Register the Domain
 
 ```bash
 # Go to Cloud Domains in the console:
@@ -74,7 +96,7 @@ gcloud config set project YOUR_PROJECT_ID
 
 > 💡 The `.in` domain has no residency restrictions — anyone can register it.
 
-### 3. Clone and Push to GitHub
+### 4. Clone and Push to GitHub
 
 ```bash
 git clone git@github.com:YOUR_USERNAME/gcp-portfolio.git
@@ -88,16 +110,14 @@ git commit -m "Initial: Next.js portfolio + Cloud Run infra"
 git push -u origin main
 ```
 
-### 4. Provision Infrastructure with Terraform
+### 5. Provision Infrastructure with Terraform
 
 ```bash
 cd terraform
 
-# Create a tfvars file with your project ID
-cat > terraform.tfvars <<EOF
-project_id = "YOUR_PROJECT_ID"
-region     = "us-central1"
-EOF
+# Copy the example vars and fill in your project ID
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars → set project_id = "YOUR_PROJECT_ID"
 
 # Initialize and apply
 terraform init
@@ -107,28 +127,67 @@ terraform apply
 
 Terraform will:
 - Enable Cloud Run, Cloud Build, and Cloud Domains APIs
+- Create the Artifact Registry repository
 - Create the Cloud Run service (scales to zero)
 - Set public IAM access
+- Optionally create the project and link billing (if configured)
+
+All resource settings are parameterized — see `variables.tf` for the full list:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `project_id` | *(required)* | GCP project ID |
+| `region` | `us-central1` | GCP region |
+| `service_name` | `portfolio` | Cloud Run service name |
+| `cpu` | `1000m` | CPU per instance |
+| `memory` | `256Mi` | Memory per instance |
+| `min_instances` | `0` | Min instances (0 = free when idle) |
+| `max_instances` | `3` | Max instances |
+| `container_port` | `8080` | Container listen port |
+| `billing_account` | `""` | Billing account ID (for project creation) |
+| `create_project` | `false` | Let Terraform create the project |
 
 After apply, Terraform outputs your Cloud Run URL (e.g., `https://portfolio-xxxxx-uc.a.run.app`).
 
-### 5. Set Up CI/CD with Cloud Build
+### 6. Set Up CI/CD
+
+**GitHub Actions PR checks (automatic — no setup required):**
+
+The `.github/workflows/pr-check.yml` workflow runs on every pull request to `main`. It checks:
+- Dependencies install cleanly (`npm ci`)
+- The app builds without errors (`npm run build`, which includes TypeScript type-checking)
+
+No configuration needed — GitHub detects the workflow file automatically. A green check means the PR is safe to merge.
+
+**Cloud Build — automatic deploys on push to main:**
 
 **Option A — GitHub connection (automatic deploys):**
 
+1. Go to [Cloud Build → Repositories](https://console.cloud.google.com/cloud-build/repositories)
+2. Connect your GitHub repo (2nd gen)
+3. Create a trigger:
+   - Name: `deploy-on-push`
+   - Event: Push to a branch
+   - Branch: `^main$`
+   - Configuration: Cloud Build configuration file (`cloudbuild.yaml`)
+   - Location: Repository root
+4. Override substitution variables if needed (all default to zero-cost-friendly values):
+
+| Substitution | Default | Description |
+|-------------|---------|-------------|
+| `_REGION` | `us-central1` | Deployment region |
+| `_SERVICE_NAME` | `portfolio` | Cloud Run service name |
+| `_MEMORY` | `256Mi` | Memory per instance |
+| `_CPU` | `1` | CPU per instance |
+| `_MIN_INSTANCES` | `0` | Min instances |
+| `_MAX_INSTANCES` | `3` | Max instances |
+| `_SITE_URL` | `https://vamsithokala.in` | Public site URL |
+| `_SITE_NAME` | `Vamsi Thokala` | Display name |
+| `_SITE_DOMAIN` | `vamsithokala.in` | Public site domain |
+
+Grant Cloud Build permission to deploy to Cloud Run:
+
 ```bash
-# Go to Cloud Build → Repositories:
-# https://console.cloud.google.com/cloud-build/repositories
-
-# 1. Connect your GitHub repo (2nd gen)
-# 2. Create a trigger:
-#    - Name: deploy-on-push
-#    - Event: Push to a branch
-#    - Branch: ^main$
-#    - Configuration: Cloud Build configuration file (cloudbuild.yaml)
-#    - Location: Repository root
-
-# Grant Cloud Build permission to deploy to Cloud Run:
 gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
   --member="serviceAccount:$(gcloud projects describe YOUR_PROJECT_ID \
     --format='value(projectNumber)')@cloudbuild.gserviceaccount.com" \
@@ -146,7 +205,7 @@ gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
 gcloud builds submit --config cloudbuild.yaml .
 ```
 
-### 6. Map Your Custom Domain
+### 7. Map Your Custom Domain
 
 Once your domain registration is verified:
 
@@ -173,15 +232,29 @@ After DNS propagation (up to 24h), your site will be live at `https://vamsithoka
 ## Local Development
 
 ```bash
+# Set up environment
+cp .env.example .env.local
+# Edit .env.local with your values (site name, domain, etc.)
+
 npm install
 npm run dev
 # → http://localhost:3000
 ```
 
 The page shows:
-- A "Hello, World" greeting
-- Your name
+- A "Hello, World" greeting (name from `NEXT_PUBLIC_SITE_NAME`)
 - Request metadata (server timestamp, host, user-agent) — proving it's dynamic
+- Footer with your domain from `NEXT_PUBLIC_SITE_DOMAIN`
+
+### Environment Variables
+
+| Variable | Default | Used in |
+|----------|---------|---------|
+| `NEXT_PUBLIC_SITE_NAME` | `Vamsi Thokala` | Page title, greeting |
+| `NEXT_PUBLIC_SITE_DOMAIN` | `vamsithokala.in` | Footer |
+| `NEXT_PUBLIC_SITE_URL` | `https://vamsithokala.in` | Cloud Build deploy |
+| `NODE_ENV` | `development` | Runtime mode |
+| `PORT` | `3000` | Local dev server |
 
 ---
 
@@ -199,32 +272,28 @@ This is built to grow:
 
 ## File Index
 
-| File | Purpose |
-|------|---------|
-| `src/app/page.tsx` | Dynamic home page (server-rendered) |
-| `src/app/layout.tsx` | Root layout with metadata |
-| `Dockerfile` | Multi-stage build for Cloud Run |
-| `cloudbuild.yaml` | Cloud Build CI/CD pipeline |
-| `terraform/main.tf` | GCP resources (Cloud Run, APIs, IAM) |
-| `terraform/variables.tf` | Terraform input variables |
-| `terraform/outputs.tf` | Terraform output values |
-| `next.config.js` | Next.js config (standalone output) |
-| `.gitignore` | Ignored files for git and Terraform |
-| `.dockerignore` | Ignored files for Docker builds |
-
----
-
-## Troubleshooting
-
-**"Cloud Run service not found" during deploy:**
-→ Run `terraform apply` first to create the service.
-
-**"Permission denied" during Cloud Build deploy:**
-→ Grant the Cloud Build service account `roles/run.admin` and `roles/iam.serviceAccountUser` (see Step 5).
-
-**Domain mapping stuck in "Certificate provisioning":**
-→ Verify your DNS records are correct. It can take up to 24 hours for the SSL certificate to provision.
-
-**Container fails to start:**
-→ Check Cloud Run logs: `gcloud run logs read --service portfolio --region us-central1`
-→ Verify the container listens on port 8080 (the Dockerfile sets `PORT=8080`).
+```
+.
+├── .env.example                     # Template for local env vars
+├── .github/
+│   └── workflows/
+│       └── pr-check.yml             # GitHub Actions PR quality gate
+├── .gitignore                       # Ignores .env, terraform state, build artifacts
+├── Dockerfile                       # Multi-stage Next.js build
+├── README.md                        # This file
+├── cloudbuild.yaml                  # CI/CD pipeline (substitution variables)
+├── next.config.js                   # Next.js config (standalone output)
+├── package.json                     # Dependencies & scripts
+├── tsconfig.json                    # TypeScript config
+├── scripts/
+│   └── setup-billing.sh             # Automated billing account linking
+├── terraform/
+│   ├── main.tf                      # GCP resources (Cloud Run, Artifact Registry, IAM)
+│   ├── outputs.tf                   # Terraform outputs
+│   ├── variables.tf                 # All parameterized variables
+│   └── terraform.tfvars.example     # Template for your tfvars
+└── src/
+    └── app/
+        ├── layout.tsx               # Root layout + metadata
+        └── page.tsx                 # Home page (dynamic server component)
+```

@@ -8,13 +8,16 @@ export default async function Home() {
   const userAgent = heads.get("user-agent") ?? "none";
   const now = new Date().toISOString();
 
+  const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Vamsi Thokala";
+  const siteDomain = process.env.NEXT_PUBLIC_SITE_DOMAIN ?? "vamsithokala.in";
+
   return (
     <main style={mainStyle}>
       <h1 style={{ fontSize: "3rem", marginBottom: "0.2em" }}>
         Hello, World 👋
       </h1>
       <p style={{ fontSize: "1.3rem", opacity: 0.75 }}>
-        I&apos;m <strong>Vamsi Thokala</strong>. Welcome to my corner of the
+        I&apos;m <strong>{siteName}</strong>. Welcome to my corner of the
         internet.
       </p>
 
@@ -31,7 +34,7 @@ export default async function Home() {
       </div>
 
       <p style={{ marginTop: "2.5rem", fontSize: "0.85rem", opacity: 0.5 }}>
-        Running on Cloud Run · vamsithokala.in
+        Running on Cloud Run · {siteDomain}
       </p>
     </main>
   );

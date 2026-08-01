@@ -1,0 +1,45 @@
+# ─────────────────────────────────────────────────────────────────
+# Terraform variable definitions — copy to terraform.tfvars
+# ─────────────────────────────────────────────────────────────────
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# terraform.tfvars is gitignored; never commit it.
+# ─────────────────────────────────────────────────────────────────
+
+# Required: your GCP project ID
+project_id = "YOUR_PROJECT_ID"
+
+# ─────────────────────────────────────────────────────────────────
+# Option A: Use an existing project (default)
+# ─────────────────────────────────────────────────────────────────
+# Just set project_id above. Terraform will use the existing project.
+# Link billing manually:  ./scripts/setup-billing.sh YOUR_PROJECT_ID
+# or via gcloud:          gcloud beta billing projects link ...
+
+# ─────────────────────────────────────────────────────────────────
+# Option B: Let Terraform create the project + link billing
+# ─────────────────────────────────────────────────────────────────
+# Uncomment below and set your billing account ID:
+#
+# create_project  = true
+# billing_account = "XXXXXX-XXXXXX-XXXXXX"
+# project_name    = "Vamsi Portfolio"
+#
+# Find your billing account ID:
+#   gcloud beta billing accounts list --format="value(name)"
+
+# ─────────────────────────────────────────────────────────────────
+# Region (default: us-central1)
+# ─────────────────────────────────────────────────────────────────
+# region = "us-central1"
+
+# ─────────────────────────────────────────────────────────────────
+# Cloud Run service tuning (defaults are zero-cost friendly)
+# ─────────────────────────────────────────────────────────────────
+# service_name    = "portfolio"
+# container_port  = 8080
+# cpu             = "1000m"
+# memory          = "256Mi"
+# min_instances   = 0          # 0 = scale to zero (free when idle)
+# max_instances   = 3
+# image_repository = "cloud-run-source-deploy"

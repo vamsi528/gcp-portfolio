@@ -4,6 +4,24 @@
 #   1. Enable Cloud Build API in your GCP project
 #   2. Connect your GitHub repo in the Cloud Build "Repositories" page
 #   3. Create a trigger that runs this file on push to main
+#
+# All values use Cloud Build substitution variables (_PREFIX).
+# Set defaults below or override them when creating the trigger:
+#   https://console.cloud.google.com/cloud-build/triggers
+
+substitutions:
+  _REGION: "us-central1"
+  _SERVICE_NAME: "portfolio"
+  _IMAGE_REPO: "cloud-run-source-deploy"
+  _MEMORY: "256Mi"
+  _CPU: "1"
+  _MIN_INSTANCES: "0"
+  _MAX_INSTANCES: "3"
+  _CONTAINER_PORT: "8080"
+  _NODE_ENV: "production"
+  _SITE_URL: "https://vamsithokala.in"
+  _SITE_NAME: "Vamsi Thokala"
+  _SITE_DOMAIN: "vamsithokala.in"
 
 steps:
   # ──────────────────────────────────────
@@ -13,8 +31,10 @@ steps:
     args:
       - "build"
       - "--tag"
-      - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_IMAGE_REPO}/${_SERVICE_NAME}"
       - "."
+      - "--build-arg"
+      - "NODE_ENV=${_NODE_ENV}"
 
   # ──────────────────────────────────────
   # 2. Push the image to Artifact Registry
@@ -22,7 +42,7 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_IMAGE_REPO}/${_SERVICE_NAME}"
 
   # ──────────────────────────────────────
   # 3. Deploy to Cloud Run
@@ -32,27 +52,29 @@ steps:
     args:
       - "run"
       - "deploy"
-      - "portfolio"
+      - "${_SERVICE_NAME}"
       - "--image"
-      - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_IMAGE_REPO}/${_SERVICE_NAME}"
       - "--region"
-      - "us-central1"
+      - "${_REGION}"
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
       - "--memory"
-      - "256Mi"
+      - "${_MEMORY}"
       - "--cpu"
-      - "1"
+      - "${_CPU}"
       - "--min-instances"
-      - "0"
+      - "${_MIN_INSTANCES}"
       - "--max-instances"
-      - "3"
+      - "${_MAX_INSTANCES}"
+      - "--port"
+      - "${_CONTAINER_PORT}"
       - "--set-env-vars"
-      - "NODE_ENV=production"
+      - "NODE_ENV=${_NODE_ENV},NEXT_PUBLIC_SITE_URL=${_SITE_URL},NEXT_PUBLIC_SITE_NAME=${_SITE_NAME},NEXT_PUBLIC_SITE_DOMAIN=${_SITE_DOMAIN}"
 
 images:
-  - "us-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/portfolio"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_IMAGE_REPO}/${_SERVICE_NAME}"
 
 options:
   logging: CLOUD_LOGGING_ONLY

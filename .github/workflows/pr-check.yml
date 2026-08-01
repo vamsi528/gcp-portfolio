@@ -1,0 +1,35 @@
+# pr-check.yml — Pre-merge quality gate for pull requests
+#
+# Runs on every PR targeting main. Catches broken builds before merge.
+# Cloud Build handles the actual deploy on push to main — see cloudbuild.yaml.
+
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_NAME: "Vamsi Thokala"
+          NEXT_PUBLIC_SITE_DOMAIN: "vamsithokala.in"
+          NEXT_PUBLIC_SITE_URL: "https://vamsithokala.in"

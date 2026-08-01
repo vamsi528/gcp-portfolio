@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
+const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Vamsi Thokala";
+
 export const metadata: Metadata = {
-  title: "Vamsi Thokala — Portfolio",
+  title: `${siteName} — Portfolio`,
   description:
     "Full-stack developer portfolio. Building thoughtful software for the web.",
 };
