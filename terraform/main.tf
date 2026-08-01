@@ -76,49 +76,10 @@ resource "google_artifact_registry_repository" "images" {
 }
 
 # ─────────────────────────────────────────────────────────────────
-# Cloud Run service (scales to zero when idle → zero cost)
+# Cloud Run service is created and managed by Cloud Build
+# (gcloud run deploy in cloudbuild.yaml handles create + update).
+# Terraform only creates the underlying infrastructure (APIs, AR).
 # ─────────────────────────────────────────────────────────────────
-resource "google_cloud_run_v2_service" "portfolio" {
-  name     = var.service_name
-  location = var.region
-  project  = local.project
-
-  template {
-    containers {
-      image = "${var.region}-docker.pkg.dev/${local.project}/${var.image_repository}/${var.service_name}"
-      ports {
-        container_port = var.container_port
-      }
-      resources {
-        limits = {
-          cpu    = var.cpu
-          memory = var.memory
-        }
-      }
-    }
-
-    scaling {
-      min_instance_count = var.min_instances   # 0 = scale to zero (free when idle)
-      max_instance_count = var.max_instances
-    }
-  }
-
-  # Allow unauthenticated access (public portfolio site)
-  ingress = "INGRESS_TRAFFIC_ALL"
-
-  depends_on = [google_project_service.run]
-}
-
-# ─────────────────────────────────────────────────────────────────
-# Public access (allows anyone to visit your site)
-# ─────────────────────────────────────────────────────────────────
-resource "google_cloud_run_service_iam_member" "public" {
-  project  = local.project
-  location = google_cloud_run_v2_service.portfolio.location
-  service  = google_cloud_run_v2_service.portfolio.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}
 
 # ─────────────────────────────────────────────────────────────────
 # Domain mapping to vamsithokala.in (uncomment after domain purchase)
