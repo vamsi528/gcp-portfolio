@@ -29,7 +29,6 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Copy only the standalone output and static files
-COPY --from=builder /app/public ./public 2>/dev/null || true
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
