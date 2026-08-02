@@ -19,6 +19,9 @@ export default function Nav() {
         <Link href="/references" style={linkStyle}>
           References
         </Link>
+        <Link href="/schedule-call" style={{ ...linkStyle, color: "#8be9fd" }}>
+          Schedule Call
+        </Link>
       </div>
     </nav>
   );
