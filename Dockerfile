@@ -31,6 +31,7 @@ EXPOSE 8080
 # Copy only the standalone output and static files
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 # Run as non-root user
 RUN addgroup --system --gid 1001 nodejs && \
