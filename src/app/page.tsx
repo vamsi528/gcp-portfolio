@@ -46,10 +46,10 @@ export default async function Home() {
         </div>
 
         <div style={{ display: "flex", gap: 12 }}>
-          <a href="https://linkedin.com/in/vamsithokala" target="_blank" rel="noopener" className="pill-link">
+          <a href="https://www.linkedin.com/in/vamsi-thokala/" target="_blank" rel="noopener" className="pill-link">
             <span style={{ color: "var(--cyan)" }}>in</span> LinkedIn
           </a>
-          <a href="https://x.com/vamsithokala" target="_blank" rel="noopener" className="pill-link">
+          <a href="https://x.com/Vamsi_Thok" target="_blank" rel="noopener" className="pill-link">
             <span style={{ color: "var(--cyan)" }}>𝕏</span> X
           </a>
           <a href="mailto:thevamsithokala@gmail.com" className="pill-link">

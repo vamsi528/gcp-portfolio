@@ -22,7 +22,7 @@ export default function ScheduleCall() {
               <p style={{ fontSize: "0.8rem", opacity: 0.5, margin: 0 }}>Deep dive into your project or idea</p>
             </div>
           </div>
-          <a href="https://cal.com/vamsithokala/30min" target="_blank" rel="noopener" className="pill-link" style={{ background: "var(--cyan)", color: "var(--bg)", border: "none", fontWeight: 600 }}>
+          <a href="https://cal.com/vamsi-thokala/30min" target="_blank" rel="noopener" className="pill-link" style={{ background: "var(--cyan)", color: "var(--bg)", border: "none", fontWeight: 600 }}>
             Book 30 Min ↗
           </a>
         </div>
@@ -37,7 +37,7 @@ export default function ScheduleCall() {
               <p style={{ fontSize: "0.8rem", opacity: 0.5, margin: 0 }}>Quick chat to see if we&apos;re a fit</p>
             </div>
           </div>
-          <a href="https://cal.com/vamsithokala/15min" target="_blank" rel="noopener" className="pill-link" style={{ background: "var(--purple)", color: "var(--bg)", border: "none", fontWeight: 600 }}>
+          <a href="https://cal.com/vamsi-thokala/15min" target="_blank" rel="noopener" className="pill-link" style={{ background: "var(--purple)", color: "var(--bg)", border: "none", fontWeight: 600 }}>
             Book 15 Min ↗
           </a>
         </div>
