@@ -52,6 +52,19 @@ export default function References() {
         <span className="gradient-text">say</span>
       </h1>
 
+      <div style={{ marginBottom: 20 }}>
+        <a
+          href="https://www.linkedin.com/in/vamsi-thokala/details/recommendations/?detailScreenTabIndex=0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ref-footer-link"
+          style={{ fontSize: "0.85rem", opacity: 0.55, fontWeight: 500 }}
+        >
+          Verify all recommendations on LinkedIn
+          <span aria-hidden="true" className="ref-ext-glyph">↗</span>
+        </a>
+      </div>
+
       <div style={{ display: "grid", gap: 16 }}>
         {refs.map((ref, i) => (
           <div key={i} className="bento-card" style={{ borderLeft: `3px solid ${ref.color}` }}>
@@ -85,19 +98,6 @@ export default function References() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div style={{ marginTop: 24, textAlign: "center" }}>
-        <a
-          href="https://www.linkedin.com/in/vamsi-thokala/details/recommendations/?detailScreenTabIndex=0"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ref-footer-link"
-          style={{ fontSize: "0.85rem", opacity: 0.55, fontWeight: 500 }}
-        >
-          Verify all recommendations on LinkedIn
-          <span aria-hidden="true" className="ref-ext-glyph">↗</span>
-        </a>
       </div>
     </main>
   );
