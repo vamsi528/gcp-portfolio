@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Nav from "./components/Nav";
 
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Vamsi Thokala";
 
@@ -15,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body style={bodyStyle}>{children}</body>
+      <body style={bodyStyle}>
+        <Nav />
+        <div style={contentStyle}>{children}</div>
+      </body>
     </html>
   );
 }
@@ -27,7 +31,10 @@ const bodyStyle: React.CSSProperties = {
   background: "#0f0f0f",
   color: "#f0f0f0",
   minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
+};
+
+const contentStyle: React.CSSProperties = {
+  maxWidth: 800,
+  margin: "0 auto",
+  padding: "2rem 1rem",
 };

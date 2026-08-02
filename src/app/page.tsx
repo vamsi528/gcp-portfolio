@@ -42,8 +42,6 @@ export default async function Home() {
 
 const mainStyle: React.CSSProperties = {
   textAlign: "center",
-  maxWidth: 640,
-  padding: "2rem",
 };
 
 const metaCard: React.CSSProperties = {
