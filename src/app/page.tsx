@@ -25,7 +25,7 @@ export default async function Home() {
         </div>
 
         <p style={{ fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--cyan)", margin: "0 0 8px", fontWeight: 600 }}>
-          Developer & Builder
+          Cloud Data Engineer
         </p>
 
         <h1 style={{ fontSize: "2.1rem", fontWeight: 800, margin: "0 0 4px", lineHeight: 1.2 }}>
@@ -34,15 +34,18 @@ export default async function Home() {
         </h1>
 
         <p style={{ fontSize: "0.95rem", opacity: 0.6, maxWidth: 320, lineHeight: 1.6, margin: "12px 0 24px" }}>
-          I craft performant web experiences and scalable cloud infrastructure.
+          I design and build scalable data platforms on the cloud.
         </p>
 
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 24 }}>
-          <span className="tag" style={{ color: "var(--cyan)", borderColor: "rgba(139,233,253,0.2)" }}>Next.js</span>
-          <span className="tag" style={{ color: "var(--purple)", borderColor: "rgba(189,147,249,0.2)" }}>TypeScript</span>
-          <span className="tag" style={{ color: "var(--magenta)", borderColor: "rgba(255,121,198,0.2)" }}>Cloud Run</span>
-          <span className="tag" style={{ color: "var(--green)", borderColor: "rgba(80,250,123,0.2)" }}>Terraform</span>
-          <span className="tag" style={{ color: "var(--orange)", borderColor: "rgba(255,184,108,0.2)" }}>React</span>
+          <span className="tag" style={{ color: "var(--cyan)", borderColor: "rgba(139,233,253,0.2)" }}>GCP</span>
+          <span className="tag" style={{ color: "var(--purple)", borderColor: "rgba(189,147,249,0.2)" }}>BigQuery</span>
+          <span className="tag" style={{ color: "var(--magenta)", borderColor: "rgba(255,121,198,0.2)" }}>Dataflow</span>
+          <span className="tag" style={{ color: "var(--green)", borderColor: "rgba(80,250,123,0.2)" }}>Airflow</span>
+          <span className="tag" style={{ color: "var(--orange)", borderColor: "rgba(255,184,108,0.2)" }}>Spark</span>
+          <span className="tag" style={{ color: "var(--cyan)", borderColor: "rgba(139,233,253,0.2)" }}>Terraform</span>
+          <span className="tag" style={{ color: "var(--purple)", borderColor: "rgba(189,147,249,0.2)" }}>dbt</span>
+          <span className="tag" style={{ color: "var(--magenta)", borderColor: "rgba(255,121,198,0.2)" }}>Python</span>
         </div>
 
         <div style={{ display: "flex", gap: 12 }}>
@@ -80,8 +83,9 @@ export default async function Home() {
           About Me
         </p>
         <p style={{ fontSize: "0.9rem", opacity: 0.65, margin: 0, lineHeight: 1.6 }}>
-          Full-stack engineer passionate about cloud-native architecture, 
-          developer experience, and building tools that make teams faster.
+          When I&apos;m not working with data, you&apos;ll find me travelling to new places,
+          staying active with sports, or spending time with friends. I thrive in
+          collaborative environments and believe a great team makes all the difference.
         </p>
         <p style={{ fontSize: "0.8rem", color: "var(--cyan)", marginTop: 12, fontWeight: 500 }}>
           Read more →
@@ -94,8 +98,11 @@ export default async function Home() {
           Experience
         </p>
         <div style={{ marginBottom: 12 }}>
-          <p style={{ fontWeight: 600, fontSize: "0.9rem", margin: "0 0 4px" }}>Senior Software Engineer</p>
-          <p style={{ fontSize: "0.8rem", opacity: 0.5, margin: 0 }}>Current · Cloud & Platform</p>
+          <p style={{ fontWeight: 600, fontSize: "0.9rem", margin: "0 0 6px" }}>Data Platform Migration</p>
+          <p style={{ fontSize: "0.8rem", opacity: 0.5, margin: 0, lineHeight: 1.5 }}>
+            Moving analytical systems from on-prem to cloud — modernizing data pipelines, 
+            warehouses, and orchestration at scale.
+          </p>
         </div>
         <p style={{ fontSize: "0.8rem", color: "var(--cyan)", fontWeight: 500, margin: 0 }}>
           View full timeline →
