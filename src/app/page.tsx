@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import Link from "next/link";
+import { getAllPosts } from "@/lib/blog";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,9 @@ export default async function Home() {
 
   const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Vamsi Thokala";
   const siteDomain = process.env.NEXT_PUBLIC_SITE_DOMAIN ?? "vamsithokala.in";
+
+  const posts = getAllPosts();
+  const latestPost = posts[0];
 
   return (
     <div className="bento-grid">
@@ -110,18 +114,30 @@ export default async function Home() {
       </Link>
 
       {/* ── Blog Preview ── */}
-      <Link href="/blog" className="bento-card" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+      <Link
+        href={latestPost ? `/blog/${latestPost.slug}` : "/blog"}
+        className="bento-card"
+        style={{ textDecoration: "none", color: "inherit", display: "block" }}
+      >
         <p style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--green)", margin: "0 0 8px", fontWeight: 600 }}>
           Latest Writing
         </p>
-        <p style={{ fontWeight: 600, fontSize: "0.9rem", margin: "0 0 6px", lineHeight: 1.4 }}>
-          Thoughts on engineering, cloud, and developer tooling.
-        </p>
-        <p style={{ fontSize: "0.8rem", opacity: 0.5, margin: 0 }}>
-          Read occasional deep-dives and learnings from production.
-        </p>
-        <p style={{ fontSize: "0.8rem", color: "var(--cyan)", marginTop: 12, fontWeight: 500 }}>
-          Browse posts →
+        {latestPost ? (
+          <>
+            <p style={{ fontWeight: 600, fontSize: "0.9rem", margin: "0 0 6px", lineHeight: 1.4 }}>
+              {latestPost.title}
+            </p>
+            <p style={{ fontSize: "0.75rem", opacity: 0.4, margin: "0 0 8px" }}>
+              {latestPost.date}
+            </p>
+          </>
+        ) : (
+          <p style={{ fontSize: "0.9rem", opacity: 0.55, margin: "0 0 8px", lineHeight: 1.4 }}>
+            Thoughts on engineering, cloud, and data.
+          </p>
+        )}
+        <p style={{ fontSize: "0.8rem", color: "var(--cyan)", fontWeight: 500 }}>
+          {latestPost ? "Read post →" : "Browse posts →"}
         </p>
       </Link>
 

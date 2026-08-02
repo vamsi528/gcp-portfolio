@@ -63,6 +63,12 @@ resource "google_project_service" "domains" {
   disable_on_destroy = false
 }
 
+resource "google_project_service" "certificatemanager" {
+  project = local.project
+  service = "certificatemanager.googleapis.com"
+  disable_on_destroy = false
+}
+
 # ─────────────────────────────────────────────────────────────────
 # Artifact Registry repository for container images
 # ─────────────────────────────────────────────────────────────────
