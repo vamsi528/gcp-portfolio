@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPost, getAllPosts } from "@/lib/blog";
+import { getPost, getAllPosts } from "../../../lib/blog";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
